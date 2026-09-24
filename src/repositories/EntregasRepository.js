@@ -12,4 +12,8 @@ export class EntregasRepository {
   listar() {
     return this.database.entregas;
   }
+
+  listarPorStatus(status) {
+    return this.database.entregas.filter(entrega => entrega.status === status);
+  }
 }

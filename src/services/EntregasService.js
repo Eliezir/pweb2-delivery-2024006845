@@ -22,9 +22,9 @@ export class EntregasService {
     return this.entregasRepository.criar(entrega);
   }
 
-
-  listar() {
-    return this.entregasRepository.listar();
+  listar(status) {
+    return status
+      ? this.entregasRepository.listarPorStatus(status)
+      : this.entregasRepository.listar();
   }
-
 }
