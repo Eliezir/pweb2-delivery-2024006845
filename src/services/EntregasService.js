@@ -21,4 +21,10 @@ export class EntregasService {
     };
     return this.entregasRepository.criar(entrega);
   }
+
+
+  listar() {
+    return this.entregasRepository.listar();
+  }
+
 }

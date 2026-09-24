@@ -16,5 +16,9 @@ export function criarRotas() {
     return entregasController.criar(req, res);
   });
 
+  router.get("/entregas", (req, res) => {
+    return entregasController.listar(req, res);
+  });
+
   return router;
 }

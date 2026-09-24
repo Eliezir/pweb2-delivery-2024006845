@@ -10,4 +10,10 @@ export class EntregasController {
 
     return res.status(201).json(entrega);
   }
+
+  listar(_req, res) {
+    const entregas = this.entregasService.listar();
+    return res.json(entregas);
+  }
+
 }
