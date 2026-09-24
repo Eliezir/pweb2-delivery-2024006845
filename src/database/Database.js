@@ -1,11 +1,11 @@
 export class Database {
     constructor() {
-        this.deliveries = [];
-        this.idCounter = 1;
+        this.entregas = [];
+        this.contadorId = 1;
     }
 
-    nextId() {
-        return this.idCounter++;
+    proximoId() {
+        return this.contadorId++;
     }
 }
 
