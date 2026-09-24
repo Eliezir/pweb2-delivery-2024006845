@@ -28,5 +28,9 @@ export function criarRotas() {
     return entregasController.avancar(req, res);
   });
 
+    router.patch("/entregas/:id/cancelar", (req, res) => {
+    return entregasController.cancelar(req, res);
+  });
+
   return router;
 }

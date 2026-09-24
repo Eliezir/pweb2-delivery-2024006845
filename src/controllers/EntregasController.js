@@ -27,4 +27,10 @@ export class EntregasController {
     const entregaAtualizada = this.entregasService.avancar(id);
     return res.json(entregaAtualizada);
   }
+
+  cancelar(req, res) {
+    const id = Number(req.params.id);
+    const entregaAtualizada = this.entregasService.cancelar(id);
+    return res.json(entregaAtualizada);
+  }
 }

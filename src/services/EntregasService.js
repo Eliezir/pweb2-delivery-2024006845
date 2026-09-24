@@ -60,4 +60,21 @@ export class EntregasService {
 
     return this.entregasRepository.atualizar(entrega);
   }
+
+
+  cancelar(id) {
+    const entrega = this.buscarPorId(id);
+
+    if (entrega.status === "ENTREGUE" || entrega.status === "CANCELADA")
+      throw new AppError("Não é possível cancelar uma entrega já entregue ou cancelada", 422);
+
+    entrega.status = "CANCELADA";
+    entrega.historico.push({
+      data: new Date().toISOString(),
+      descricao: "Entrega cancelada",
+    });
+
+    return this.entregasRepository.atualizar(entrega);
+  }
+
 }
