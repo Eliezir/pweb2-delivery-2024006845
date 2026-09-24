@@ -1,6 +1,6 @@
 import { AppError } from '../utils/AppError.js';
 
-export const middlewareDeErros = (err, req, res, next) => {
+export const middlewareDeErros = (err, _req, res) => {
   if (err instanceof AppError) {
     return res.status(err.statusCode).json({ erro: err.message });
   }
