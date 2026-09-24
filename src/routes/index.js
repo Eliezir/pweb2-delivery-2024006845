@@ -24,5 +24,9 @@ export function criarRotas() {
     return entregasController.buscarPorId(req, res);
   });
 
+  router.patch("/entregas/:id/avancar", (req, res) => {
+    return entregasController.avancar(req, res);
+  });
+
   return router;
 }

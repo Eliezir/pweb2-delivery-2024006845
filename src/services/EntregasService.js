@@ -9,7 +9,12 @@ export class EntregasService {
     if (origem === destino)
       throw new AppError("A origem e o destino não podem ser iguais.", 400);
 
-    if (this.entregasRepository.buscarDuplicataPorStatus({ descricao, origem, destino }, ["CRIADA", "EM_TRANSITO"]))
+    if (
+      this.entregasRepository.buscarDuplicataPorStatus(
+        { descricao, origem, destino },
+        ["CRIADA", "EM_TRANSITO"],
+      )
+    )
       throw new AppError("Já existe uma entrega com os mesmos dados.", 409);
 
     const entrega = {
@@ -34,7 +39,25 @@ export class EntregasService {
   buscarPorId(id) {
     const entrega = this.entregasRepository.buscarPorId(id);
     if (!entrega) throw new AppError("Entrega não encontrada", 404);
-    
     return entrega;
+  }
+
+  avancar(id) {
+    const entrega = this.buscarPorId(id);
+    
+    const proximoStatus = {
+      CRIADA: "EM_TRANSITO",
+      EM_TRANSITO: "ENTREGUE",
+    }[entrega.status];
+
+    if (!proximoStatus) throw new AppError("transição de status inválida", 422);
+
+    entrega.status = proximoStatus;
+    entrega.historico.push({
+      data: new Date().toISOString(),
+      descricao: `Status alterado para ${entrega.status}`,
+    });
+
+    return this.entregasRepository.atualizar(entrega);
   }
 }
