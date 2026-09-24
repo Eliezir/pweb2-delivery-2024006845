@@ -16,4 +16,8 @@ export class EntregasRepository {
   listarPorStatus(status) {
     return this.database.entregas.filter(entrega => entrega.status === status);
   }
+
+  buscarPorId(id) {
+    return this.database.entregas.find(entrega => entrega.id === id);
+  }
 }

@@ -27,4 +27,11 @@ export class EntregasService {
       ? this.entregasRepository.listarPorStatus(status)
       : this.entregasRepository.listar();
   }
+
+  buscarPorId(id) {
+    const entrega = this.entregasRepository.buscarPorId(id);
+    if (!entrega) throw new AppError("Entrega não encontrada", 404);
+    
+    return entrega;
+  }
 }

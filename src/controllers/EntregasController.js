@@ -16,4 +16,9 @@ export class EntregasController {
     return res.json(entregas);
   }
 
+  buscarPorId(req, res) {
+    const id = Number(req.params.id);
+    const entrega = this.entregasService.buscarPorId(id);
+    return res.json(entrega);
+  }
 }

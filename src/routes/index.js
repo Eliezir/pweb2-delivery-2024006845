@@ -20,5 +20,9 @@ export function criarRotas() {
     return entregasController.listar(req, res);
   });
 
+  router.get("/entregas/:id", (req, res) => {
+    return entregasController.buscarPorId(req, res);
+  });
+
   return router;
 }
