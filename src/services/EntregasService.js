@@ -77,4 +77,9 @@ export class EntregasService {
     return this.entregasRepository.atualizar(entrega);
   }
 
+  exibirHistorico(id) {
+    const entrega = this.buscarPorId(id);
+    return entrega.historico; 
+  }
+
 }

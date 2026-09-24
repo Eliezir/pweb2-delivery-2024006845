@@ -33,4 +33,10 @@ export class EntregasController {
     const entregaAtualizada = this.entregasService.cancelar(id);
     return res.json(entregaAtualizada);
   }
+
+  exibirHistorico(req, res) {
+    const id = Number(req.params.id);
+    const historico = this.entregasService.exibirHistorico(id);
+    return res.json(historico);
+  }
 }

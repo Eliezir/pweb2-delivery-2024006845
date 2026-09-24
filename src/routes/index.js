@@ -32,5 +32,9 @@ export function criarRotas() {
     return entregasController.cancelar(req, res);
   });
 
+  router.get("/entregas/:id/historico", (req, res) => {  
+    return entregasController.exibirHistorico(req, res);
+  })
+
   return router;
 }
