@@ -7,6 +7,7 @@
 // autograder: `npm run check` (com o servidor no ar) ou pela aba Actions no push.
 import express from 'express';
 import { criarRotas } from './src/routes/index.js';  // <- descomente quando criar as rotas
+import { middlewareDeErros } from './src/middlewares/errors.middleware.js';
 
 const app = express();
 app.use(express.json());
@@ -19,6 +20,9 @@ app.use('/api', criarRotas());
 
 // 404 para rotas não mapeadas (mantenha por último, antes do listen).
 app.use((req, res) => res.status(404).json({ erro: 'recurso não encontrado' }));
+
+app.use(middlewareDeErros);
+
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`Delivery Tracker rodando em http://localhost:${PORT}`));

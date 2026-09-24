@@ -3,9 +3,13 @@ export class EntregasController {
         this.entregasService = entregasService;
     }
 
-    criar(req, res) {
+    criar(req, res, next) {
         const { descricao, origem, destino } = req.body;
-        const entrega = this.entregasService.criar(descricao, origem, destino);
-        res.status(201).json(entrega);
+        try {
+            const entrega = this.entregasService.criar(descricao, origem, destino);
+            res.status(201).json(entrega);
+        } catch (error) {
+            next(error);
+        }
     }
 }

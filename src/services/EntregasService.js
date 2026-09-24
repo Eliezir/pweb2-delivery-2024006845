@@ -1,9 +1,14 @@
+import { AppError } from "../utils/AppError.js";
+
 export class EntregasService {
   constructor(entregasRepository) {
     this.entregasRepository = entregasRepository;
   }
 
   criar(descricao, origem, destino) {
+    if (origem === destino)
+      throw new AppError("A origem e o destino não podem ser iguais.", 400);
+
     const entrega = {
       descricao,
       origem,
@@ -14,7 +19,6 @@ export class EntregasService {
         { data: new Date().toISOString(), descricao: "Entrega criada" },
       ],
     };
-
     return this.entregasRepository.criar(entrega);
   }
 }

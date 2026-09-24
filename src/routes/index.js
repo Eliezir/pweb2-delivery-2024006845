@@ -12,8 +12,8 @@ export function criarRotas() {
   const entregasService = new EntregasService(entregasRepository);
   const entregasController = new EntregasController(entregasService);
 
-  router.post("/entregas", (req, res) => {
-    return entregasController.criar(req, res);
+  router.post("/entregas", (req, res, next) => {
+    return entregasController.criar(req, res, next);
   });
 
   return router;
