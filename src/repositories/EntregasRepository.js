@@ -5,8 +5,19 @@ export class EntregasRepository {
 
   criar(dados) {
     const entrega = { id: this.database.proximoId(), ...dados };
-    this.database.entregas.push(entrega );
+    this.database.entregas.push(entrega);
     return entrega;
+  }
+
+
+  buscarDuplicataPorStatus(dados, statusPermitidos) {
+    return this.database.entregas.find(
+      (entrega) =>
+        entrega.descricao === dados.descricao &&
+        entrega.origem === dados.origem &&
+        entrega.destino === dados.destino &&
+        statusPermitidos.includes(entrega.status)
+    );
   }
 
   listar() {
@@ -14,10 +25,12 @@ export class EntregasRepository {
   }
 
   listarPorStatus(status) {
-    return this.database.entregas.filter(entrega => entrega.status === status);
+    return this.database.entregas.filter(
+      (entrega) => entrega.status === status,
+    );
   }
 
   buscarPorId(id) {
-    return this.database.entregas.find(entrega => entrega.id === id);
+    return this.database.entregas.find((entrega) => entrega.id === id);
   }
 }

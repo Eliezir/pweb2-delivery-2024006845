@@ -9,6 +9,9 @@ export class EntregasService {
     if (origem === destino)
       throw new AppError("A origem e o destino não podem ser iguais.", 400);
 
+    if (this.entregasRepository.buscarDuplicataPorStatus({ descricao, origem, destino }, ["CRIADA", "EM_TRANSITO"]))
+      throw new AppError("Já existe uma entrega com os mesmos dados.", 409);
+
     const entrega = {
       descricao,
       origem,
