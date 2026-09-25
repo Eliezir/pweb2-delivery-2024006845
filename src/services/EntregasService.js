@@ -6,6 +6,10 @@ export class EntregasService {
   }
 
   criar(descricao, origem, destino) {
+
+    if(!descricao || !origem || !destino)
+      throw new AppError("Todos os campos são obrigatórios.", 400);
+
     if (origem === destino)
       throw new AppError("A origem e o destino não podem ser iguais.", 400);
 
