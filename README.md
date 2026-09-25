@@ -33,6 +33,79 @@ src/
 - **Regra de negócio só no Service.** Injeção de dependência no **composition root** (`src/routes`).
 - O `server.js` só configura o app (já traz o `GET /api/health` exigido — não remova).
 
+## API de Entregas
+
+Base URL: `http://localhost:3000/api`.
+
+| Método | Rota | Descrição |
+|---|---|---|
+| `GET` | `/health` | Verifica se a API está disponível. |
+| `POST` | `/entregas` | Cria uma entrega. |
+| `GET` | `/entregas` | Lista entregas; aceita o filtro `?status=`. |
+| `GET` | `/entregas/:id` | Busca uma entrega pelo ID. |
+| `PATCH` | `/entregas/:id/avancar` | Avança o status da entrega. |
+| `PATCH` | `/entregas/:id/cancelar` | Cancela uma entrega. |
+| `GET` | `/entregas/:id/historico` | Exibe os eventos do histórico. |
+
+### Exemplos com curl
+
+Com o servidor em execução (`npm start`), execute os comandos abaixo em outro terminal.
+
+```bash
+# Health check
+curl http://localhost:3000/api/health
+
+# Criar entrega
+curl -X POST http://localhost:3000/api/entregas \
+  -H "Content-Type: application/json" \
+  -d '{
+    "descricao": "Caixa de livro",
+    "origem": "Maceio",
+    "destino": "Arapiraca"
+  }'
+
+# Listar todas as entregas
+curl http://localhost:3000/api/entregas
+
+# Listar somente entregas com aquele status (CRIADA, EM_TRANSITO, ENTREGUE, CANCELADA)
+curl "http://localhost:3000/api/entregas?status=STATUS"
+
+# Buscar uma entrega
+curl http://localhost:3000/api/entregas/<id>
+
+# Avançar o status: CRIADA -> EM_TRANSITO -> ENTREGUE
+curl -X PATCH http://localhost:3000/api/entregas/<id>/avancar
+
+# Cancelar uma entrega que ainda não foi entregue
+curl -X PATCH http://localhost:3000/api/entregas/<id>/cancelar
+
+# Consultar o histórico de uma entrega
+curl http://localhost:3000/api/entregas/<id>/historico
+```
+
+### Respostas de erro
+
+Todas as respostas de erro seguem o formato:
+
+```json
+{ "erro": "mensagem" }
+```
+
+| Status | Situação |
+|---|---|
+| `400` | Entrada inválida, como origem igual ao destino ou campos ausentes. |
+| `404` | Entrega não encontrada. |
+| `409` | Já existe uma entrega ativa com os mesmos dados. |
+| `422` | Transição de status ou cancelamento inválido. |
+
+### Verificação automática
+
+Com o servidor em execução, rode o autograder em outro terminal:
+
+```bash
+npm run check
+```
+
 ## Duas etapas (ver os enunciados completos)
 
 - **Atividade 05 — Entregas em camadas:** CRUD de `/api/entregas`, ciclo de status
