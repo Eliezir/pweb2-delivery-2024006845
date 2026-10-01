@@ -39,4 +39,10 @@ export class EntregasController {
     const historico = this.entregasService.exibirHistorico(id);
     return res.json(historico);
   }
+
+  atribuir(req, res) {
+    const id = Number(req.params.id);
+    const entrega = this.entregasService.atribuir(id, req.body.motoristaId);
+    return res.json(entrega);
+  }
 }

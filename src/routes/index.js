@@ -14,10 +14,10 @@ export function criarRotas() {
 
   const database = new Database();
   const entregasRepository = new EntregasRepository(database);
-  const entregasService = new EntregasService(entregasRepository);
-  const entregasController = new EntregasController(entregasService);
   const motoristasRepository = new MotoristasRepository(database);
+  const entregasService = new EntregasService(entregasRepository, motoristasRepository);
   const motoristasService = new MotoristasService(motoristasRepository, entregasRepository);
+  const entregasController = new EntregasController(entregasService);
   const motoristasController = new MotoristasController(motoristasService);
 
   router.use("/entregas", criarRotasEntregas(entregasController));

@@ -1,8 +1,9 @@
 import { AppError } from "../utils/AppError.js";
 
 export class EntregasService {
-  constructor(entregasRepository) {
+  constructor(entregasRepository, motoristasRepository) {
     this.entregasRepository = entregasRepository;
+    this.motoristasRepository = motoristasRepository;
   }
 
   criar(descricao, origem, destino) {
@@ -82,5 +83,34 @@ export class EntregasService {
   exibirHistorico(id) {
     const entrega = this.buscarPorId(id);
     return entrega.historico;
+  }
+
+  atribuir(id, motoristaId) {
+    const entrega = this.buscarPorId(id);
+
+    if (!motoristaId)
+      throw new AppError("O campo motoristaId é obrigatório.", 400);
+
+    const motorista = this.motoristasRepository.buscarPorId(
+      Number(motoristaId),
+    );
+    if (!motorista) throw new AppError("Motorista não encontrado", 404);
+
+    if (entrega.status !== "CRIADA")
+      throw new AppError(
+        "Só é possível atribuir motorista a entregas CRIADAS",
+        422,
+      );
+
+    if (motorista.status !== "ATIVO")
+      throw new AppError("Não é possível atribuir um motorista INATIVO", 422);
+
+    entrega.motoristaId = motorista.id;
+    entrega.historico.push({
+      data: new Date().toISOString(),
+      descricao: `Motorista ${motorista.nome} atribuído`,
+    });
+
+    return this.entregasRepository.atualizar(entrega);
   }
 }

@@ -27,5 +27,9 @@ export function criarRotasEntregas(entregasController) {
     return entregasController.exibirHistorico(req, res);
   });
 
+  router.patch("/:id/atribuir", (req, res) => {
+    return entregasController.atribuir(req, res);
+  });
+
   return router;
 }
