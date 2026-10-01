@@ -3,6 +3,11 @@ import { Database } from "../database/Database.js";
 import { EntregasController } from "../controllers/EntregasController.js";
 import { EntregasService } from "../services/EntregasService.js";
 import { EntregasRepository } from "../repositories/EntregasRepository.js";
+import { criarRotasEntregas } from "./entregas.routes.js";
+import { criarRotasMotoristas } from "./motoristas.routes.js";
+import { MotoristasController } from "../controllers/MotoristasController.js";
+import { MotoristasService } from "../services/MotoristasService.js";
+import { MotoristasRepository } from "../repositories/MotoristasRepository.js";
 
 export function criarRotas() {
   const router = Router();
@@ -11,30 +16,12 @@ export function criarRotas() {
   const entregasRepository = new EntregasRepository(database);
   const entregasService = new EntregasService(entregasRepository);
   const entregasController = new EntregasController(entregasService);
+  const motoristasRepository = new MotoristasRepository(database);
+  const motoristasService = new MotoristasService(motoristasRepository);
+  const motoristasController = new MotoristasController(motoristasService);
 
-  router.post("/entregas", (req, res) => {
-    return entregasController.criar(req, res);
-  });
-
-  router.get("/entregas", (req, res) => {
-    return entregasController.listar(req, res);
-  });
-
-  router.get("/entregas/:id", (req, res) => {
-    return entregasController.buscarPorId(req, res);
-  });
-
-  router.patch("/entregas/:id/avancar", (req, res) => {
-    return entregasController.avancar(req, res);
-  });
-
-    router.patch("/entregas/:id/cancelar", (req, res) => {
-    return entregasController.cancelar(req, res);
-  });
-
-  router.get("/entregas/:id/historico", (req, res) => {  
-    return entregasController.exibirHistorico(req, res);
-  })
+  router.use("/entregas", criarRotasEntregas(entregasController));
+  router.use("/motoristas", criarRotasMotoristas(motoristasController));
 
   return router;
 }
