@@ -14,6 +14,20 @@ export class MotoristasRepository {
   }
 
   buscarPorCpf(cpf) {
-    return this.database.motoristas.find((motorista) => motorista.cpf === cpf) || null;
+    return (
+      this.database.motoristas.find((motorista) => motorista.cpf === cpf) ||
+      null
+    );
+  }
+
+  listarTodos() {
+    return this.database.motoristas;
+  }
+
+  buscarPorId(id) {
+    return (
+      this.database.motoristas.find((motorista) => motorista.id === id) ||
+      null
+    );
   }
 }

@@ -17,7 +17,7 @@ export function criarRotas() {
   const entregasService = new EntregasService(entregasRepository);
   const entregasController = new EntregasController(entregasService);
   const motoristasRepository = new MotoristasRepository(database);
-  const motoristasService = new MotoristasService(motoristasRepository);
+  const motoristasService = new MotoristasService(motoristasRepository, entregasRepository);
   const motoristasController = new MotoristasController(motoristasService);
 
   router.use("/entregas", criarRotasEntregas(entregasController));

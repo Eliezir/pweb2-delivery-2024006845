@@ -19,13 +19,12 @@ export class EntregasRepository {
     );
   }
 
-  listar() {
-    return this.database.entregas;
-  }
-
-  listarPorStatus(status) {
+  listarTodos(filtros = {}) {
     return this.database.entregas.filter(
-      (entrega) => entrega.status === status,
+      (entrega) =>
+        (filtros.status === undefined || entrega.status === filtros.status) &&
+        (filtros.motoristaId === undefined ||
+          entrega.motoristaId === filtros.motoristaId),
     );
   }
 

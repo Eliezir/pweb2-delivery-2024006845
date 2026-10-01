@@ -1,8 +1,9 @@
 import { AppError } from "../utils/AppError.js";
 
 export class MotoristasService {
-  constructor(motoristasRepository) {
+  constructor(motoristasRepository, entregasRepository) {
     this.motoristasRepository = motoristasRepository;
+    this.entregasRepository = entregasRepository;
   }
 
   criar(nome, cpf, placaVeiculo) {
@@ -21,5 +22,24 @@ export class MotoristasService {
     };
 
     return this.motoristasRepository.criar(novoMotorista);
+  }
+
+  listar() {
+    return this.motoristasRepository.listarTodos();
+  }
+
+  listarEntregas(id, status) {
+    const motorista = this.buscarPorId(id);
+    return this.entregasRepository.listarTodos({
+      motoristaId: motorista.id,
+      status,
+    });
+  }
+
+  
+  buscarPorId(id) {
+    const motorista = this.motoristasRepository.buscarPorId(id);
+    if (!motorista) throw new AppError("Motorista não encontrado", 404);
+    return motorista;
   }
 }

@@ -6,8 +6,7 @@ export class EntregasService {
   }
 
   criar(descricao, origem, destino) {
-
-    if(!descricao || !origem || !destino)
+    if (!descricao || !origem || !destino)
       throw new AppError("Todos os campos são obrigatórios.", 400);
 
     if (origem === destino)
@@ -35,11 +34,8 @@ export class EntregasService {
   }
 
   listar(status) {
-    return status
-      ? this.entregasRepository.listarPorStatus(status)
-      : this.entregasRepository.listar();
+    return this.entregasRepository.listarTodos({ status });
   }
-
   buscarPorId(id) {
     const entrega = this.entregasRepository.buscarPorId(id);
     if (!entrega) throw new AppError("Entrega não encontrada", 404);
@@ -48,7 +44,7 @@ export class EntregasService {
 
   avancar(id) {
     const entrega = this.buscarPorId(id);
-    
+
     const proximoStatus = {
       CRIADA: "EM_TRANSITO",
       EM_TRANSITO: "ENTREGUE",
@@ -65,12 +61,14 @@ export class EntregasService {
     return this.entregasRepository.atualizar(entrega);
   }
 
-
   cancelar(id) {
     const entrega = this.buscarPorId(id);
 
     if (entrega.status === "ENTREGUE" || entrega.status === "CANCELADA")
-      throw new AppError("Não é possível cancelar uma entrega já entregue ou cancelada", 422);
+      throw new AppError(
+        "Não é possível cancelar uma entrega já entregue ou cancelada",
+        422,
+      );
 
     entrega.status = "CANCELADA";
     entrega.historico.push({
@@ -83,7 +81,6 @@ export class EntregasService {
 
   exibirHistorico(id) {
     const entrega = this.buscarPorId(id);
-    return entrega.historico; 
+    return entrega.historico;
   }
-
 }
