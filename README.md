@@ -46,6 +46,16 @@ Base URL: `http://localhost:3000/api`.
 | `PATCH` | `/entregas/:id/avancar` | Avança o status da entrega. |
 | `PATCH` | `/entregas/:id/cancelar` | Cancela uma entrega. |
 | `GET` | `/entregas/:id/historico` | Exibe os eventos do histórico. |
+| `PATCH` | `/entregas/:id/atribuir` | Atribui um motorista (`{ motoristaId }`) a uma entrega `CRIADA`. |
+
+## API de Motoristas
+
+| Método | Rota | Corpo | Sucesso | Erros |
+|---|---|---|---|---|
+| `POST` | `/motoristas` | `{ nome, cpf, placaVeiculo? }` | `201` motorista (`status: ATIVO`) | `400` campos · `409` CPF duplicado |
+| `GET` | `/motoristas` | — | `200` array | — |
+| `GET` | `/motoristas/:id` | — | `200` motorista | `404` |
+| `GET` | `/motoristas/:id/entregas` | — | `200` só as entregas do motorista; aceita `?status=` | `404` |
 
 ### Exemplos com curl
 
@@ -81,6 +91,24 @@ curl -X PATCH http://localhost:3000/api/entregas/<id>/cancelar
 
 # Consultar o histórico de uma entrega
 curl http://localhost:3000/api/entregas/<id>/historico
+
+# Cadastrar motorista (placaVeiculo é opcional)
+curl -X POST http://localhost:3000/api/motoristas \
+  -H "Content-Type: application/json" \
+  -d '{ "nome": "Maria", "cpf": "123.456.789-00", "placaVeiculo": "ABC1D23" }'
+
+# Listar / buscar motoristas
+curl http://localhost:3000/api/motoristas
+curl http://localhost:3000/api/motoristas/<id>
+
+# Atribuir motorista a uma entrega CRIADA
+curl -X PATCH http://localhost:3000/api/entregas/<id>/atribuir \
+  -H "Content-Type: application/json" \
+  -d '{ "motoristaId": <motoristaId> }'
+
+# Entregas de um motorista (filtro de status opcional)
+curl http://localhost:3000/api/motoristas/<id>/entregas
+curl "http://localhost:3000/api/motoristas/<id>/entregas?status=CRIADA"
 ```
 
 ### Respostas de erro
@@ -94,9 +122,46 @@ Todas as respostas de erro seguem o formato:
 | Status | Situação |
 |---|---|
 | `400` | Entrada inválida, como origem igual ao destino ou campos ausentes. |
-| `404` | Entrega não encontrada. |
-| `409` | Já existe uma entrega ativa com os mesmos dados. |
-| `422` | Transição de status ou cancelamento inválido. |
+| `404` | Entrega ou motorista não encontrado. |
+| `409` | Já existe uma entrega ativa com os mesmos dados, ou CPF já cadastrado. |
+| `422` | Transição/cancelamento inválido, ou atribuição a entrega não `CRIADA` / motorista `INATIVO`. |
+
+## Contratos de Repository e composição das dependências
+
+Cada repository documenta seu contrato em JSDoc (`src/repositories/`). Os services chamam
+**apenas** esses métodos, então qualquer implementação que os respeite (memória, banco ou Mock)
+pode ser injetada:
+
+```
+EntregasRepository                       MotoristasRepository
+  listarTodos(filtros?) → Entrega[]        listarTodos()     → Motorista[]
+  buscarPorId(id)       → Entrega | null   buscarPorId(id)   → Motorista | null
+  criar(dados)          → Entrega          buscarPorCpf(cpf) → Motorista | null
+  atualizar(id, dados)  → Entrega | null   criar(dados)      → Motorista
+```
+
+Todas as dependências são criadas num único ponto, o *composition root* em
+`src/routes/index.js`; nenhum service ou controller faz `new` de repository:
+
+```
+src/routes/index.js  (composition root)
+
+  database             = new Database()
+     ├──► entregasRepository   = new EntregasRepository(database)
+     └──► motoristasRepository = new MotoristasRepository(database)
+
+  entregasService   = new EntregasService(entregasRepository, motoristasRepository)
+  motoristasService = new MotoristasService(motoristasRepository, entregasRepository)
+
+  entregasController   = new EntregasController(entregasService)     ──► /api/entregas    (entregas.routes.js)
+  motoristasController = new MotoristasController(motoristasService) ──► /api/motoristas  (motoristas.routes.js)
+
+Fluxo de uma requisição:
+  Router ──► Controller ──► Service ──► Repository (contrato) ──► Database
+```
+
+A regra "motorista `INATIVO` não pode ser atribuído" fica no `EntregasService`, pois é uma
+regra da atribuição.
 
 ### Verificação automática
 
