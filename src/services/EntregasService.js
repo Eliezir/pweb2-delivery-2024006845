@@ -13,13 +13,17 @@ export class EntregasService {
     if (origem === destino)
       throw new AppError("A origem e o destino não podem ser iguais.", 400);
 
-    if (
-      this.entregasRepository.buscarDuplicataPorStatus(
-        { descricao, origem, destino },
-        ["CRIADA", "EM_TRANSITO"],
-      )
-    )
-      throw new AppError("Já existe uma entrega com os mesmos dados.", 409);
+      const duplicada = this.entregasRepository
+        .listarTodos()
+        .some(
+          (entrega) =>
+            entrega.descricao === descricao &&
+            entrega.origem === origem &&
+            entrega.destino === destino &&
+            ["CRIADA", "EM_TRANSITO"].includes(entrega.status),
+        );
+      if (duplicada)
+        throw new AppError("Já existe uma entrega com os mesmos dados.", 409);
 
     const entrega = {
       descricao,
@@ -59,7 +63,7 @@ export class EntregasService {
       descricao: `Status alterado para ${entrega.status}`,
     });
 
-    return this.entregasRepository.atualizar(entrega);
+    return this.entregasRepository.atualizar(id, entrega);
   }
 
   cancelar(id) {
@@ -77,7 +81,7 @@ export class EntregasService {
       descricao: "Entrega cancelada",
     });
 
-    return this.entregasRepository.atualizar(entrega);
+    return this.entregasRepository.atualizar(id, entrega);
   }
 
   exibirHistorico(id) {
@@ -111,6 +115,6 @@ export class EntregasService {
       descricao: `Motorista ${motorista.nome} atribuído`,
     });
 
-    return this.entregasRepository.atualizar(entrega);
+    return this.entregasRepository.atualizar(id, entrega);
   }
 }

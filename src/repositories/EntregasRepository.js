@@ -9,16 +9,6 @@ export class EntregasRepository {
     return entrega;
   }
 
-  buscarDuplicataPorStatus(dados, statusPermitidos) {
-    return this.database.entregas.find(
-      (entrega) =>
-        entrega.descricao === dados.descricao &&
-        entrega.origem === dados.origem &&
-        entrega.destino === dados.destino &&
-        statusPermitidos.includes(entrega.status),
-    );
-  }
-
   listarTodos(filtros = {}) {
     return this.database.entregas.filter(
       (entrega) =>
@@ -29,15 +19,20 @@ export class EntregasRepository {
   }
 
   buscarPorId(id) {
-    return this.database.entregas.find((entrega) => entrega.id === id);
+    return this.database.entregas.find((entrega) => entrega.id === id) || null;
   }
 
-  atualizar(entrega) {
+  atualizar(id, dados) {
     const index = this.database.entregas.findIndex(
-      (item) => item.id === entrega.id,
+      (entrega) => entrega.id === id,
     );
-    if (index === -1) throw new Error(`Entrega com id ${entrega.id} não encontrada.`);
-    this.database.entregas[index] = entrega;
+    if (index === -1) return null;
+
+    this.database.entregas[index] = {
+      ...this.database.entregas[index],
+      ...dados,
+      id,
+    };
     return this.database.entregas[index];
   }
 }
