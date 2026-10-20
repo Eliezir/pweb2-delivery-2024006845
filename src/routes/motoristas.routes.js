@@ -1,23 +1,28 @@
 import { Router } from "express";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 export function criarRotasMotoristas(motoristasController) {
   const router = Router();
 
-  router.post("/", (req, res) => {
-    return motoristasController.criar(req, res);
-  });
+  router.post(
+    "/",
+    asyncHandler((req, res) => motoristasController.criar(req, res)),
+  );
 
-  router.get("/", (req, res) => {
-    return motoristasController.listar(req, res);
-  });
+  router.get(
+    "/",
+    asyncHandler((req, res) => motoristasController.listar(req, res)),
+  );
 
-  router.get("/:id", (req, res) => {
-    return motoristasController.buscarPorId(req, res);
-  });
+  router.get(
+    "/:id",
+    asyncHandler((req, res) => motoristasController.buscarPorId(req, res)),
+  );
 
-    router.get("/:id/entregas", (req, res) => {
-    return motoristasController.listarEntregas(req, res);
-  });
+  router.get(
+    "/:id/entregas",
+    asyncHandler((req, res) => motoristasController.listarEntregas(req, res)),
+  );
 
   return router;
 }

@@ -6,24 +6,23 @@ export class EntregasService {
     this.motoristasRepository = motoristasRepository;
   }
 
-  criar(descricao, origem, destino) {
+  async criar(descricao, origem, destino) {
     if (!descricao || !origem || !destino)
       throw new AppError("Todos os campos são obrigatórios.", 400);
 
     if (origem === destino)
       throw new AppError("A origem e o destino não podem ser iguais.", 400);
 
-      const duplicada = this.entregasRepository
-        .listarTodos()
-        .some(
-          (entrega) =>
-            entrega.descricao === descricao &&
-            entrega.origem === origem &&
-            entrega.destino === destino &&
-            ["CRIADA", "EM_TRANSITO"].includes(entrega.status),
-        );
-      if (duplicada)
-        throw new AppError("Já existe uma entrega com os mesmos dados.", 409);
+    const entregas = await this.entregasRepository.listarTodos();
+    const duplicada = entregas.some(
+      (entrega) =>
+        entrega.descricao === descricao &&
+        entrega.origem === origem &&
+        entrega.destino === destino &&
+        ["CRIADA", "EM_TRANSITO"].includes(entrega.status),
+    );
+    if (duplicada)
+      throw new AppError("Já existe uma entrega com os mesmos dados.", 409);
 
     const entrega = {
       descricao,
@@ -38,17 +37,18 @@ export class EntregasService {
     return this.entregasRepository.criar(entrega);
   }
 
-  listar(status) {
+  async listar(status) {
     return this.entregasRepository.listarTodos({ status });
   }
-  buscarPorId(id) {
-    const entrega = this.entregasRepository.buscarPorId(id);
+
+  async buscarPorId(id) {
+    const entrega = await this.entregasRepository.buscarPorId(id);
     if (!entrega) throw new AppError("Entrega não encontrada", 404);
     return entrega;
   }
 
-  avancar(id) {
-    const entrega = this.buscarPorId(id);
+  async avancar(id) {
+    const entrega = await this.buscarPorId(id);
 
     const proximoStatus = {
       CRIADA: "EM_TRANSITO",
@@ -66,8 +66,8 @@ export class EntregasService {
     return this.entregasRepository.atualizar(id, entrega);
   }
 
-  cancelar(id) {
-    const entrega = this.buscarPorId(id);
+  async cancelar(id) {
+    const entrega = await this.buscarPorId(id);
 
     if (entrega.status === "ENTREGUE" || entrega.status === "CANCELADA")
       throw new AppError(
@@ -84,18 +84,18 @@ export class EntregasService {
     return this.entregasRepository.atualizar(id, entrega);
   }
 
-  exibirHistorico(id) {
-    const entrega = this.buscarPorId(id);
+  async exibirHistorico(id) {
+    const entrega = await this.buscarPorId(id);
     return entrega.historico;
   }
 
-  atribuir(id, motoristaId) {
-    const entrega = this.buscarPorId(id);
+  async atribuir(id, motoristaId) {
+    const entrega = await this.buscarPorId(id);
 
     if (!motoristaId)
       throw new AppError("O campo motoristaId é obrigatório.", 400);
 
-    const motorista = this.motoristasRepository.buscarPorId(
+    const motorista = await this.motoristasRepository.buscarPorId(
       Number(motoristaId),
     );
     if (!motorista) throw new AppError("Motorista não encontrado", 404);
