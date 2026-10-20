@@ -2,7 +2,7 @@ import { Router } from "express";
 import { Database } from "../database/Database.js";
 import { EntregasController } from "../controllers/EntregasController.js";
 import { EntregasService } from "../services/EntregasService.js";
-import { EntregasRepository } from "../repositories/EntregasRepository.js";
+import { EntregasRepositoryPrisma } from "../repositories/entregas.repository.prisma.js";
 import { criarRotasEntregas } from "./entregas.routes.js";
 import { criarRotasMotoristas } from "./motoristas.routes.js";
 import { MotoristasController } from "../controllers/MotoristasController.js";
@@ -13,7 +13,7 @@ export function criarRotas() {
   const router = Router();
 
   const database = new Database();
-  const entregasRepository = new EntregasRepository(database);
+  const entregasRepository = new EntregasRepositoryPrisma();
   const motoristasRepository = new MotoristasRepositoryPrisma();
   const entregasService = new EntregasService(entregasRepository, motoristasRepository);
   const motoristasService = new MotoristasService(motoristasRepository, entregasRepository);
