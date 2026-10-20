@@ -11,3 +11,37 @@ generator client {
 datasource db {
   provider = "sqlite"
 }
+
+model Motorista {
+  id           Int       @id @default(autoincrement())
+  nome         String
+  cpf          String    @unique
+  placaVeiculo String?   @map("placa_veiculo")
+  status       String    @default("ATIVO")
+  entregas     Entrega[]
+
+  @@map("motoristas")
+}
+
+model Entrega {
+  id          Int        @id @default(autoincrement())
+  descricao   String
+  origem      String
+  destino     String
+  status      String     @default("CRIADA")
+  motorista   Motorista? @relation(fields: [motoristaId], references: [id])
+  motoristaId Int?       @map("motorista_id")
+  historico   Evento[]
+
+  @@map("entregas")
+}
+
+model Evento {
+  id        Int      @id @default(autoincrement())
+  data      DateTime @default(now())
+  descricao String
+  entrega   Entrega  @relation(fields: [entregaId], references: [id])
+  entregaId Int      @map("entrega_id")
+
+  @@map("eventos")
+}
