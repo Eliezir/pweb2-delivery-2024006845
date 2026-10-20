@@ -7,14 +7,14 @@ import { criarRotasEntregas } from "./entregas.routes.js";
 import { criarRotasMotoristas } from "./motoristas.routes.js";
 import { MotoristasController } from "../controllers/MotoristasController.js";
 import { MotoristasService } from "../services/MotoristasService.js";
-import { MotoristasRepository } from "../repositories/MotoristasRepository.js";
+import { MotoristasRepositoryPrisma } from "../repositories/motoristas.repository.prisma.js";
 
 export function criarRotas() {
   const router = Router();
 
   const database = new Database();
   const entregasRepository = new EntregasRepository(database);
-  const motoristasRepository = new MotoristasRepository(database);
+  const motoristasRepository = new MotoristasRepositoryPrisma();
   const entregasService = new EntregasService(entregasRepository, motoristasRepository);
   const motoristasService = new MotoristasService(motoristasRepository, entregasRepository);
   const entregasController = new EntregasController(entregasService);
