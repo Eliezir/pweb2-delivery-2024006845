@@ -11,6 +11,8 @@
 2. Clone, instale e rode:
    ```bash
    npm install
+   cp .env.example .env                             # DATABASE_URL="file:./dev.db"
+   npx prisma migrate dev                           # cria o banco SQLite e aplica as migrations
    npm start                                        # http://localhost:3000
    # em outro terminal — autograder:
    npm run check                                    # = BASE_URL=http://localhost:3000 node autograder/check.mjs
@@ -24,8 +26,8 @@
 src/
 ├── controllers/   # traduz HTTP ↔ service (sem regra de negócio)
 ├── services/      # TODA a regra de negócio
-├── repositories/  # só acesso a dados
-├── database/      # persistência SIMULADA em memória (sem banco real, sem ORM)
+├── repositories/  # só acesso a dados (Prisma + SQLite)
+├── config/        # PrismaClient (singleton) em database.js
 ├── routes/        # composição das dependências (injeção) + monta em /api
 └── utils/
 ```
@@ -140,15 +142,18 @@ EntregasRepository                       MotoristasRepository
   atualizar(id, dados)  → Entrega | null   criar(dados)      → Motorista
 ```
 
+Desde a Atividade 07 todos os métodos são **assíncronos** (retornam `Promise`). Implementações:
+`entregas.repository.prisma.js` (`EntregasRepositoryPrisma`) e
+`motoristas.repository.prisma.js` (`MotoristasRepositoryPrisma`).
+
 Todas as dependências são criadas num único ponto, o *composition root* em
 `src/routes/index.js`; nenhum service ou controller faz `new` de repository:
 
 ```
 src/routes/index.js  (composition root)
 
-  database             = new Database()
-     ├──► entregasRepository   = new EntregasRepository(database)
-     └──► motoristasRepository = new MotoristasRepository(database)
+  entregasRepository   = new EntregasRepositoryPrisma()
+  motoristasRepository = new MotoristasRepositoryPrisma()
 
   entregasService   = new EntregasService(entregasRepository, motoristasRepository)
   motoristasService = new MotoristasService(motoristasRepository, entregasRepository)
@@ -157,11 +162,43 @@ src/routes/index.js  (composition root)
   motoristasController = new MotoristasController(motoristasService) ──► /api/motoristas  (motoristas.routes.js)
 
 Fluxo de uma requisição:
-  Router ──► Controller ──► Service ──► Repository (contrato) ──► Database
+  Router ──► Controller ──► Service ──► Repository (contrato) ──► Prisma Client ──► SQLite
 ```
 
 A regra "motorista `INATIVO` não pode ser atribuído" fica no `EntregasService`, pois é uma
 regra da atribuição.
+
+## Persistência com Prisma + SQLite (Atividade 07)
+
+Os dados são gravados em um banco SQLite e sobrevivem à reinicialização do servidor.
+
+- **Schema:** `prisma/schema.prisma` (modelos `Motorista`, `Entrega` e `Evento`; o histórico da
+  entrega é a relação 1:N `Entrega → Evento`; CPF do motorista é `@unique`).
+- **Migrations versionadas:** `prisma/migrations/`. O arquivo `dev.db` não é versionado.
+- **Banco por variável de ambiente:** `DATABASE_URL="file:./dev.db"` no `.env` (modelo em `.env.example`).
+- **Singleton do Prisma Client:** `src/config/database.js`. Só os repositories o utilizam.
+
+Como rodar:
+
+```bash
+npm install
+cp .env.example .env
+npx prisma migrate dev        # cria o banco e aplica as migrations (em produção/CI: npx prisma migrate deploy)
+npm start
+```
+
+Para inspecionar os dados: `sqlite3 dev.db ".tables"` (o `prisma studio` não abre URLs `file:` na versão 7.10.1).
+
+Observações:
+
+- **Services e controllers agora são `async`.** O Prisma é assíncrono, então os métodos dos services
+  e controllers usam `async`/`await`; as regras de negócio não mudaram. As rotas usam o wrapper
+  `asyncHandler` (`src/utils/asyncHandler.js`) para que os erros cheguem ao middleware de erros.
+- **Prisma 7 (diferenças em relação ao livro).** O client do SQLite usa o *driver adapter*
+  `@prisma/adapter-better-sqlite3`, e a URL do banco também é lida em `prisma7.config.ts`.
+  O gerador é o `prisma-client-js`, então o import é `@prisma/client`.
+- **CI:** o workflow roda `npx prisma generate` e `npx prisma migrate deploy` antes de subir o servidor,
+  com `DATABASE_URL` definido no próprio workflow.
 
 ### Verificação automática
 
@@ -177,6 +214,8 @@ npm run check
   (`CRIADA → EM_TRANSITO → ENTREGUE`/`CANCELADA`), histórico. Meta: checagens de **Entregas** verdes.
 - **Atividade 06 — Motoristas + Contratos + DI:** `/api/motoristas`, atribuição de motorista,
   contratos de repository (JSDoc) e composição num ponto único. Meta: **122/122**.
+- **Atividade 07 — Persistência com Prisma (SQLite):** schema, migrations versionadas e repositories
+  Prisma com o mesmo contrato; dados sobrevivem ao reinício. Meta: **122/122** + persistência.
 
 > O critério de **inversão de dependência** é verificado pelo professor **trocando o repository por
 > um Mock** que respeita o contrato — programe contra o contrato desde o início.
