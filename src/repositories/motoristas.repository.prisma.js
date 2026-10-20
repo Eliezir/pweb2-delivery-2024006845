@@ -1,6 +1,15 @@
 import { prisma } from "../config/database.js";
 
 /**
+ * @typedef {Object} Motorista
+ * @property {number} id
+ * @property {string} nome
+ * @property {string} cpf                Único entre os motoristas.
+ * @property {string|null} placaVeiculo  Opcional.
+ * @property {"ATIVO"|"INATIVO"} status
+ */
+
+/**
  * Repositório de Motoristas (persistência com Prisma + SQLite).
  *
  * Mesmo contrato (IMotoristasRepository) da versão em memória, agora assíncrono:

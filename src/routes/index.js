@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { Database } from "../database/Database.js";
 import { EntregasController } from "../controllers/EntregasController.js";
 import { EntregasService } from "../services/EntregasService.js";
 import { EntregasRepositoryPrisma } from "../repositories/entregas.repository.prisma.js";
@@ -12,7 +11,6 @@ import { MotoristasRepositoryPrisma } from "../repositories/motoristas.repositor
 export function criarRotas() {
   const router = Router();
 
-  const database = new Database();
   const entregasRepository = new EntregasRepositoryPrisma();
   const motoristasRepository = new MotoristasRepositoryPrisma();
   const entregasService = new EntregasService(entregasRepository, motoristasRepository);
