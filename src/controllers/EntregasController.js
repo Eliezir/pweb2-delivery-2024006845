@@ -38,7 +38,7 @@ export class EntregasController {
   async buscarPorId(req, res) {
     const id = Number(req.params.id);
     const entrega = await this.entregasService.buscarPorId(id);
-    return res.json(entrega);
+    return res.render('entregas/detalhe', { titulo: `Entrega #${entrega.id}`, entrega });
   }
 
   async avancar(req, res) {

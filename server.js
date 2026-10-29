@@ -12,7 +12,7 @@ import methodOverride from 'method-override';
 import session from 'express-session';
 import flash from 'connect-flash';
 import { criarRotas } from './src/routes/index.js';  // <- descomente quando criar as rotas
-import { middlewareDeErros } from './src/middlewares/errors.middleware.js';
+import { middlewareDeErros, naoEncontrado } from './src/middlewares/errors.middleware.js';
 import { dirname, join }  from 'path';
 import { fileURLToPath } from 'url';
 
@@ -50,7 +50,7 @@ app.get('/', (req, res) => res.redirect('/entregas'));
 
 app.use('/', criarRotas());
 
-app.use((req, res) => res.status(404).json({ erro: 'recurso não encontrado' }));
+app.use(naoEncontrado);
 app.use(middlewareDeErros);
 
 

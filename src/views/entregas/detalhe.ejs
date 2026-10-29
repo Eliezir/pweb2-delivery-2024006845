@@ -1,0 +1,32 @@
+<h1>Entrega #<%= entrega.id %></h1>
+
+<p>
+  Status:
+  <span class="badge badge-<%= entrega.status.toLowerCase() %>"><%= entrega.status %></span>
+</p>
+
+<dl>
+  <dt>Descrição</dt>
+  <dd><%= entrega.descricao %></dd>
+
+  <dt>Origem</dt>
+  <dd><%= entrega.origem %></dd>
+
+  <dt>Destino</dt>
+  <dd><%= entrega.destino %></dd>
+
+  <dt>Motorista</dt>
+  <dd><%= entrega.motoristaId ? `#${entrega.motoristaId}` : 'Não atribuído' %></dd>
+</dl>
+
+<h2>Histórico</h2>
+<ul>
+  <% entrega.historico.forEach(evento => { %>
+    <li>
+      <time datetime="<%= evento.data %>"><%= new Date(evento.data).toLocaleString('pt-BR') %></time>
+      — <%= evento.descricao %>
+    </li>
+  <% }); %>
+</ul>
+
+<p><a href="/entregas">Voltar</a></p>

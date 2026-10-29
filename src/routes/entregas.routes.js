@@ -1,5 +1,6 @@
 import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import { AppError } from "../utils/AppError.js";
 import {
   validarNovaEntrega,
   verificarValidacao,
@@ -7,6 +8,13 @@ import {
 
 export function criarRotasEntregas(entregasController) {
   const router = Router();
+
+  router.param("id", (req, res, next, id) => {
+    if (!Number.isInteger(Number(id))) {
+      return next(new AppError("Entrega não encontrada", 404));
+    }
+    next();
+  });
 
   router.post(
     "/",
