@@ -1,11 +1,30 @@
-<% if (flash.sucesso && flash.sucesso.length > 0) { %>
-  <div class="alert alert-success">
-    <% flash.sucesso.forEach(msg => { %><p><%= msg %></p><% }); %>
+<% if (flash.sucesso.length > 0) { %>
+  <div id="flash-sucesso" style="margin: 16px; padding: 12px; background: #e8f5e9; border: 1px solid green; color: green;">
+    <button onclick="closeToast('flash-sucesso')" style="float: right;">x</button>
+    <% flash.sucesso.forEach(function (msg) { %>
+      <p><%= msg %></p>
+    <% }); %>
   </div>
 <% } %>
 
-<% if (flash.erro && flash.erro.length > 0) { %>
-  <div class="alert alert-error">
-    <% flash.erro.forEach(msg => { %><p><%= msg %></p><% }); %>
+<% if (flash.erro.length > 0) { %>
+  <div id="flash-erro" style="margin: 16px; padding: 12px; background: #ffebee; border: 1px solid red; color: red;">
+    <button onclick="closeToast('flash-erro')" style="float: right;">x</button>
+    <% flash.erro.forEach(function (msg) { %>
+      <p><%= msg %></p>
+    <% }); %>
   </div>
 <% } %>
+
+<script>
+  function closeToast(id) {
+    var caixa = document.getElementById(id);
+    if (caixa) {
+      caixa.style.display = 'none';
+    }
+  }
+
+  setTimeout(function () {
+    closeToast('flash-sucesso');
+  }, 5000);
+</script>
