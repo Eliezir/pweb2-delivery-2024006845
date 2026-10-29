@@ -6,6 +6,11 @@ export const validarNovaEntrega = [
   body('destino').trim().notEmpty().withMessage('O destino é obrigatório.'),
 ];
 
+export const validarNovoMotorista = [
+  body('nome').trim().notEmpty().withMessage('O nome é obrigatório.'),
+  body('cpf').trim().notEmpty().withMessage('O CPF é obrigatório.'),
+];
+
 export const verificarValidacao = (view, titulo) => (req, res, next) => {
   const resultado = validationResult(req);
   if (resultado.isEmpty()) return next();

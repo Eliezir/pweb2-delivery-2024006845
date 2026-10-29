@@ -1,3 +1,5 @@
+import { AppError } from '../utils/AppError.js';
+
 export class MotoristasController {
   constructor(motoristasService) {
     this.motoristasService = motoristasService;
@@ -6,14 +8,30 @@ export class MotoristasController {
   async criar(req, res) {
     const { nome, cpf, placaVeiculo } = req.body;
 
-    const motorista = await this.motoristasService.criar(nome, cpf, placaVeiculo);
+    try {
+      await this.motoristasService.criar(nome, cpf, placaVeiculo);
+    } catch (err) {
+      if (err instanceof AppError && err.statusCode < 500) {
+        return res.status(err.statusCode).render('motoristas/novo', {
+          titulo: 'Novo Motorista',
+          dados: req.body,
+          erros: [err.message],
+        });
+      }
+      throw err;
+    }
 
-    return res.status(201).json(motorista);
+    req.flash('sucesso', 'Motorista cadastrado com sucesso!');
+    return res.redirect('/motoristas');
   }
 
   async listar(_req, res) {
     const motoristas = await this.motoristasService.listar();
-    return res.json(motoristas);
+    return res.render('motoristas/index', { titulo: 'Motoristas', motoristas });
+  }
+
+  async formNovo(_req, res) {
+    return res.render('motoristas/novo', { titulo: 'Novo Motorista', dados: {}, erros: [] });
   }
 
   async listarEntregas(req, res) {
