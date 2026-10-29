@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node server.js",
     "dev": "node --watch server.js",
-    "check": "node autograder/check.mjs"
+    "check": "node autograder/check.mjs",
+    "studio": "prisma studio --url \"file://$PWD/dev.db\""
   },
   "dependencies": {
     "@prisma/adapter-better-sqlite3": "^7.10.1",
