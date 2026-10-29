@@ -1,0 +1,29 @@
+<h1>Nova Entrega</h1>
+
+<% if (erros.length > 0) { %>
+  <div class="alert alert-error">
+    <ul>
+      <% erros.forEach(erro => { %><li><%= erro %></li><% }); %>
+    </ul>
+  </div>
+<% } %>
+
+<form method="POST" action="/entregas" novalidate>
+  <div>
+    <label for="descricao">Descrição</label>
+    <input type="text" id="descricao" name="descricao" value="<%= dados.descricao || '' %>">
+  </div>
+
+  <div>
+    <label for="origem">Origem</label>
+    <input type="text" id="origem" name="origem" value="<%= dados.origem || '' %>">
+  </div>
+
+  <div>
+    <label for="destino">Destino</label>
+    <input type="text" id="destino" name="destino" value="<%= dados.destino || '' %>">
+  </div>
+
+  <button type="submit">Criar entrega</button>
+  <a href="/entregas">Voltar</a>
+</form>

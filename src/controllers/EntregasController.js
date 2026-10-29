@@ -1,3 +1,5 @@
+import { AppError } from '../utils/AppError.js';
+
 export class EntregasController {
   constructor(entregasService) {
     this.entregasService = entregasService;
@@ -6,15 +8,31 @@ export class EntregasController {
   async criar(req, res) {
     const { descricao, origem, destino } = req.body;
 
-    const entrega = await this.entregasService.criar(descricao, origem, destino);
+    try {
+      await this.entregasService.criar(descricao, origem, destino);
+    } catch (err) {
+      if (err instanceof AppError && err.statusCode < 500) {
+        return res.status(err.statusCode).render('entregas/nova', {
+          titulo: 'Nova Entrega',
+          dados: req.body,
+          erros: [err.message],
+        });
+      }
+      throw err;
+    }
 
-    return res.status(201).json(entrega);
+    req.flash('sucesso', 'Entrega criada com sucesso!');
+    return res.redirect('/entregas');
   }
 
   async listar(req, res) {
     const status = req.query.status || undefined;
     const entregas = await this.entregasService.listar(status);
     return res.render('entregas/index', { titulo: 'Entregas', entregas, status });
+  }
+
+  async formNova(_req, res) {
+    return res.render('entregas/nova', { titulo: 'Nova Entrega', dados: {}, erros: [] });
   }
 
   async buscarPorId(req, res) {

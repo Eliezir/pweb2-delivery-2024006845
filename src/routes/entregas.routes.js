@@ -1,17 +1,28 @@
 import { Router } from "express";
 import { asyncHandler } from "../utils/asyncHandler.js";
+import {
+  validarNovaEntrega,
+  verificarValidacao,
+} from "../middlewares/validacao.middleware.js";
 
 export function criarRotasEntregas(entregasController) {
   const router = Router();
 
   router.post(
     "/",
+    validarNovaEntrega,
+    verificarValidacao("entregas/nova", "Nova Entrega"),
     asyncHandler((req, res) => entregasController.criar(req, res)),
   );
 
   router.get(
     "/",
     asyncHandler((req, res) => entregasController.listar(req, res)),
+  );
+
+  router.get(
+    "/nova",
+    asyncHandler((req, res) => entregasController.formNova(req, res)),
   );
 
   router.get(
