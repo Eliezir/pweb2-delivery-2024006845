@@ -46,7 +46,9 @@ app.use((req, res, next) => {
 // Health check exigido pelo contrato de execução (não remova).
 app.get('/api/health', (req, res) => res.json({ status: 'ok' }));
 
-app.use('/api', criarRotas());
+app.get('/', (req, res) => res.redirect('/entregas'));
+
+app.use('/', criarRotas());
 
 app.use((req, res) => res.status(404).json({ erro: 'recurso não encontrado' }));
 app.use(middlewareDeErros);

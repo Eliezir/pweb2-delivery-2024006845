@@ -12,8 +12,9 @@ export class EntregasController {
   }
 
   async listar(req, res) {
-    const entregas = await this.entregasService.listar(req.query.status);
-    return res.json(entregas);
+    const status = req.query.status || undefined;
+    const entregas = await this.entregasService.listar(status);
+    return res.render('entregas/index', { titulo: 'Entregas', entregas, status });
   }
 
   async buscarPorId(req, res) {
