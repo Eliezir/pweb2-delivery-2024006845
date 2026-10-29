@@ -1,8 +1,9 @@
 import { AppError } from '../utils/AppError.js';
 
 export class EntregasController {
-  constructor(entregasService) {
+  constructor(entregasService, motoristasService) {
     this.entregasService = entregasService;
+    this.motoristasService = motoristasService;
   }
 
   async criar(req, res) {
@@ -38,19 +39,46 @@ export class EntregasController {
   async buscarPorId(req, res) {
     const id = Number(req.params.id);
     const entrega = await this.entregasService.buscarPorId(id);
-    return res.render('entregas/detalhe', { titulo: `Entrega #${entrega.id}`, entrega });
+    const motoristas = await this.motoristasService.listar();
+    return res.render('entregas/detalhe', {
+      titulo: `Entrega #${entrega.id}`,
+      entrega,
+      motoristas,
+    });
+  }
+
+  // Executa uma ação de estado, avisa com flash e volta para o detalhe (PRG).
+  async executarAcao(req, res, acao, mensagem) {
+    const id = Number(req.params.id);
+
+    try {
+      await acao(id);
+      req.flash('sucesso', mensagem);
+    } catch (err) {
+      // Erro de regra (ex.: 422): mostra como mensagem na tela.
+      if (!(err instanceof AppError) || err.statusCode >= 500) throw err;
+      req.flash('erro', err.message);
+    }
+
+    return res.redirect(`/entregas/${id}`);
   }
 
   async avancar(req, res) {
-    const id = Number(req.params.id);
-    const entregaAtualizada = await this.entregasService.avancar(id);
-    return res.json(entregaAtualizada);
+    return this.executarAcao(
+      req,
+      res,
+      (id) => this.entregasService.avancar(id),
+      'Status da entrega atualizado.',
+    );
   }
 
   async cancelar(req, res) {
-    const id = Number(req.params.id);
-    const entregaAtualizada = await this.entregasService.cancelar(id);
-    return res.json(entregaAtualizada);
+    return this.executarAcao(
+      req,
+      res,
+      (id) => this.entregasService.cancelar(id),
+      'Entrega cancelada.',
+    );
   }
 
   async exibirHistorico(req, res) {
@@ -60,8 +88,11 @@ export class EntregasController {
   }
 
   async atribuir(req, res) {
-    const id = Number(req.params.id);
-    const entrega = await this.entregasService.atribuir(id, req.body.motoristaId);
-    return res.json(entrega);
+    return this.executarAcao(
+      req,
+      res,
+      (id) => this.entregasService.atribuir(id, req.body.motoristaId),
+      'Motorista atribuído com sucesso.',
+    );
   }
 }

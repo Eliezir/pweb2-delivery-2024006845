@@ -16,8 +16,34 @@
   <dd><%= entrega.destino %></dd>
 
   <dt>Motorista</dt>
-  <dd><%= entrega.motoristaId ? `#${entrega.motoristaId}` : 'Não atribuído' %></dd>
+  <dd>
+    <% const atual = motoristas.find(m => m.id === entrega.motoristaId); %>
+    <%= atual ? atual.nome : 'Não atribuído' %>
+  </dd>
 </dl>
+
+<h2>Ações</h2>
+
+<form method="POST" action="/entregas/<%= entrega.id %>/avancar?_method=PATCH">
+  <button type="submit">Avançar</button>
+</form>
+
+<form method="POST" action="/entregas/<%= entrega.id %>/cancelar?_method=PATCH">
+  <button type="submit">Cancelar</button>
+</form>
+
+<form method="POST" action="/entregas/<%= entrega.id %>/atribuir?_method=PATCH">
+  <label for="motoristaId">Motorista</label>
+  <select name="motoristaId" id="motoristaId">
+    <option value="">Selecione...</option>
+    <% motoristas.forEach(m => { %>
+      <option value="<%= m.id %>" <%= m.id === entrega.motoristaId ? 'selected' : '' %>>
+        <%= m.nome %><%= m.status === 'ATIVO' ? '' : ` (${m.status})` %>
+      </option>
+    <% }); %>
+  </select>
+  <button type="submit">Atribuir</button>
+</form>
 
 <h2>Histórico</h2>
 <ul>
